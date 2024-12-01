@@ -11,13 +11,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Docker Buil
+    - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
     - name: Log in to Docker Hub
@@ -55,4 +54,5 @@ jobs:
 
     - name: Deploy to Kubernetes
       run: |
-        kubectl apply -f k8s-deployment.yaml
+        kubectl apply -f mysql-deployment.yaml
+        kubectl apply -f nodejs-deployment.yaml
