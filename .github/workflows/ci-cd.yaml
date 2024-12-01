@@ -11,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
     - name: Checkout code
@@ -50,6 +49,7 @@ jobs:
       env:
         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       run: |
+        mkdir -p $HOME/.kube
         echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
         kubectl cluster-info
 
