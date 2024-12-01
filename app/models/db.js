@@ -1,11 +1,19 @@
 const mysql = require("mysql");
-const dbConfig = require("../config/db.config.js");
 
-var connection = mysql.createPool({
-  host: dbConfig.HOST,
-  user: dbConfig.USER,
-  password: dbConfig.PASSWORD,
-  database: dbConfig.DB
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "selin123456",
+  database: process.env.DB_NAME || "testdb"
 });
 
-module.exports = connection;
+pool.getConnection((error, connection) => {
+  if (error) {
+    console.error("Error connecting to the database:", error);
+    return;
+  }
+  console.log("Successfully connected to the database.");
+  connection.release(); 
+});
+
+module.exports = pool;
