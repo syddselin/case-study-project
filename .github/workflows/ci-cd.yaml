@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - staging
   pull_request:
     branches:
       - main
@@ -11,7 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
     - name: Checkout code
@@ -29,32 +29,51 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        docker build -t syddselin/case-study-project:latest .
-        docker push syddselin/case-study-project:latest
+        docker build -t syddselin/nodejs-app:latest .
+        docker push syddselin/nodejs-app:latest
 
-  deploy:
+  deploy-staging:
     runs-on: ubuntu-latest
     needs: build
-    environment: production
+    if: github.ref_name == 'staging'
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v1
-      with:
-        version: 'latest'
+    - name: Set up ArgoCD CLI
+      run: |
+        curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.8.0/argocd-linux-amd64
+        chmod +x /usr/local/bin/argocd
 
-    - name: Kubernetes Connection
+    - name: Deploy to Staging
       env:
-        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
+        ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
       run: |
-        mkdir -p $HOME/.kube
-        echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
-        kubectl cluster-info
+        argocd login https://argocd-server.default.svc.cluster.local --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        argocd app sync nodejs-express-mysql-staging
+        argocd app wait nodejs-express-mysql-staging --timeout 300
 
-    - name: Deploy to Kubernetes
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref_name == 'main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up ArgoCD CLI
       run: |
-        kubectl apply -f mysql-deployment.yaml
-        kubectl apply -f nodejs-deployment.yaml
+        curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.8.0/argocd-linux-amd64
+        chmod +x /usr/local/bin/argocd
+
+    - name: Deploy to Production
+      env:
+        ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
+        ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
+      run: |
+        argocd login https://argocd-server.default.svc.cluster.local --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        argocd app sync nodejs-express-mysql-production
+        argocd app wait nodejs-express-mysql-production --timeout 300
