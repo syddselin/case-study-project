@@ -44,14 +44,14 @@ jobs:
         chmod +x /usr/local/bin/argocd
 
     - name: Deploy to Staging
-      run: |
-        argocd login $ARGOCD_SERVER_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-        argocd app sync nodejs-express-mysql-staging
-        argocd app wait nodejs-express-mysql-staging --timeout 300
       env:
         ARGOCD_SERVER_URL: ${{ secrets.ARGOCD_SERVER_URL }}
         ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
         ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
+      run: |
+        argocd login $ARGOCD_SERVER_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        argocd app sync nodejs-express-mysql-staging
+        argocd app wait nodejs-express-mysql-staging --timeout 300
 
   deploy-production:
     runs-on: ubuntu-latest
@@ -68,11 +68,11 @@ jobs:
         chmod +x /usr/local/bin/argocd
 
     - name: Deploy to Production
-      run: |
-        argocd login $ARGOCD_SERVER_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-        argocd app sync nodejs-express-mysql-production
-        argocd app wait nodejs-express-mysql-production --timeout 300
       env:
         ARGOCD_SERVER_URL: ${{ secrets.ARGOCD_SERVER_URL }}
         ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
         ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
+      run: |
+        argocd login $ARGOCD_SERVER_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        argocd app sync nodejs-express-mysql-production
+        argocd app wait nodejs-express-mysql-production --timeout 300
