@@ -31,7 +31,7 @@ This project demonstrates the deployment of a Node.js application with a MySQL d
 - A user-friendly architecture ensures seamless integration of new services and scalability.
 - Distinct environments for `staging` and `production` are managed within Kubernetes.
 
-### Continuous Deployment with ArgoCD**
+### Continuous Deployment with ArgoCD
 - **ArgoCD** is used to automate the Continuous Deployment process.
 - GitOps principles are followed, with Git serving as the single source of truth for application state.
 ![ArgoCD Dashboard](images/argocd.png)
@@ -43,7 +43,19 @@ This project demonstrates the deployment of a Node.js application with a MySQL d
 ### Testing and Compatibility
 - The application is designed to run seamlessly on diverse environments, leveraging **Docker** and **Kubernetes** compatibility.
 - Its API endpoints can be easily tested using tools like `curl` or **Postman**.
-
+- Liveness and readiness probes ensure application stability:
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 3
+readinessProbe:
+  httpGet:
+    path: /readiness
+    port: 8080
+  initialDelaySeconds: 5
+```
 ---
 
 ## Requirements
@@ -102,6 +114,21 @@ Docker for containerization.
 Kubernetes for orchestration.
 Helm for managing Kubernetes configurations.
 ArgoCD for Continuous Deployment.
+
+## **Bonus: Notification Feedback Mechanism**
+Slack Integration Example for Notifications:
+
+```
+apiVersion: argoproj.io/v1alpha1
+kind: Notification
+metadata:
+  name: deployment-failure-notification
+spec:
+  service: slack
+  channels:
+    - "#alerts"
+```
+Deployment failures, health check failures, or missing secrets will send notifications to the configured Slack channel.
 
 ## **Author**
 Developed by Syddselin as part of a Kubernetes deployment case study.
