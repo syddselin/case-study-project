@@ -105,6 +105,20 @@ readinessProbe:
 ## **Access**
 Application is accessible at http://chart-example.local/ (ensure your /etc/hosts is updated if using local Kubernetes).
 
+## **Bonus: Notification Feedback Mechanism**
+Slack Integration Example for Notifications:
+
+```
+apiVersion: argoproj.io/v1alpha1
+kind: Notification
+metadata:
+  name: deployment-failure-notification
+spec:
+  service: slack
+  channels:
+    - "#alerts"
+```
+Deployment failures, health check failures, or missing secrets will send notifications to the configured Slack channel.
 
 
 ## **Tools and Technologies**
