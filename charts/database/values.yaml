@@ -1,0 +1,106 @@
+# Default values for database.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Replicas for the application pods
+replicaCount: 2 
+
+# Docker image configuration
+image:
+  repository: syddselin/nodejs-app 
+  pullPolicy: IfNotPresent
+  tag: latest 
+
+# Image pull secrets (eğer özel bir Docker Hub repository kullanıyorsanız)
+imagePullSecrets: []
+# - name: my-docker-secret
+
+# Overrides for the chart name and fullname
+nameOverride: ""
+fullnameOverride: ""
+
+# Service Account configuration
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod annotations and labels
+podAnnotations: {}
+podLabels: {}
+
+# Pod security and runtime configurations
+podSecurityContext: {}
+securityContext: {}
+
+# Service configuration
+service:
+  type: ClusterIP
+  name: nodejs-app
+  port: 8080
+
+# Liveness and readiness probes
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+
+# Environment variables for the application
+env:
+  - name: DB_HOST
+    value: "mysql"
+  - name: DB_USER
+    value: "root"
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-secret
+        key: DB_PASSWORD
+  - name: DB_NAME
+    value: "testdb"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+# Autoscaling configuration
+autoscaling:
+  enabled: false # Eğer HPA kullanmak istiyorsanız, bunu true olarak ayarlayın.
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+# Volumes and mounts
+volumes: []
+volumeMounts: []
+
+# Node selector, tolerations, and affinity for pod placement
+nodeSelector: {}
+tolerations: []
+affinity: {}
